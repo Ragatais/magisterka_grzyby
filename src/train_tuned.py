@@ -87,6 +87,7 @@ def evaluate(model, loader, criterion, num_classes):
             running_loss += loss.item()
 
             preds = torch.argmax(outputs, dim=1)
+
             all_preds.extend(preds.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
 
@@ -133,6 +134,7 @@ def main():
     model = build_resnet18(num_classes=num_classes, use_pretrained=False).to(DEVICE)
 
     criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
+
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=TUNED_LEARNING_RATE,
@@ -172,6 +174,7 @@ def main():
             "f1_macro": metrics["f1_macro"],
             "gmean": metrics["gmean"],
         }
+
         history.append(epoch_record)
 
         save_metrics_history(

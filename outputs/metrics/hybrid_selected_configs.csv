@@ -1,0 +1,4 @@
+variant,species_threshold,binary_threshold,selection_metric,validation_balanced_accuracy,validation_f1_macro,validation_gmean,validation_coverage,validation_rejection_rate,validation_balanced_accuracy_coverage_score
+best_quality,0.8,0.8,max_balanced_accuracy,0.8883583000443853,0.8930852853124596,0.8883583000443853,0.5555239179954442,0.4444760820045558,0.4935042834244293
+best_compromise,0.4,0.5,max_balanced_accuracy_times_coverage,0.8034917194979946,0.8063243205705859,0.8034917194979946,1.0,0.0,0.8034917194979946
+best_constrained_coverage_0_70,0.5,0.8,max_balanced_accuracy_with_coverage_at_least_0_70,0.8701526371564318,0.8731547480971806,0.8701526371564318,0.7277904328018223,0.2722095671981777,0.6332887643997265

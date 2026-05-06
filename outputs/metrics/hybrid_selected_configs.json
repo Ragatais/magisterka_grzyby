@@ -1,0 +1,38 @@
+[
+    {
+        "variant": "best_quality",
+        "species_threshold": 0.8,
+        "binary_threshold": 0.8,
+        "selection_metric": "max_balanced_accuracy",
+        "validation_balanced_accuracy": 0.8883583000443853,
+        "validation_f1_macro": 0.8930852853124596,
+        "validation_gmean": 0.8883583000443853,
+        "validation_coverage": 0.5555239179954442,
+        "validation_rejection_rate": 0.4444760820045558,
+        "validation_balanced_accuracy_coverage_score": 0.4935042834244293
+    },
+    {
+        "variant": "best_compromise",
+        "species_threshold": 0.4,
+        "binary_threshold": 0.5,
+        "selection_metric": "max_balanced_accuracy_times_coverage",
+        "validation_balanced_accuracy": 0.8034917194979946,
+        "validation_f1_macro": 0.8063243205705859,
+        "validation_gmean": 0.8034917194979946,
+        "validation_coverage": 1.0,
+        "validation_rejection_rate": 0.0,
+        "validation_balanced_accuracy_coverage_score": 0.8034917194979946
+    },
+    {
+        "variant": "best_constrained_coverage_0_70",
+        "species_threshold": 0.5,
+        "binary_threshold": 0.8,
+        "selection_metric": "max_balanced_accuracy_with_coverage_at_least_0_70",
+        "validation_balanced_accuracy": 0.8701526371564318,
+        "validation_f1_macro": 0.8731547480971806,
+        "validation_gmean": 0.8701526371564318,
+        "validation_coverage": 0.7277904328018223,
+        "validation_rejection_rate": 0.2722095671981777,
+        "validation_balanced_accuracy_coverage_score": 0.6332887643997265
+    }
+]
