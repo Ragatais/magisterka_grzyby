@@ -13,6 +13,7 @@ OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 CHECKPOINTS_DIR = OUTPUTS_DIR / "checkpoints"
 FIGURES_DIR = OUTPUTS_DIR / "figures"
 METRICS_DIR = OUTPUTS_DIR / "metrics"
+STATISTICAL_TESTS_DIR = OUTPUTS_DIR / "statistical_tests"
 
 # Split
 TRAIN_SIZE = 0.70

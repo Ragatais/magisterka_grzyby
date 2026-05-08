@@ -53,6 +53,8 @@ def main():
     y_true = []
     y_pred = []
 
+    prediction_records = []
+
     with torch.no_grad():
         for images, labels in tqdm(test_loader, desc="Test multiclass tuned"):
             images = images.to(DEVICE, non_blocking=True)
@@ -60,6 +62,33 @@ def main():
 
             outputs = model(images)
             preds = torch.argmax(outputs, dim=1)
+
+            batch_paths = test_dataset.data.iloc[
+                len(y_true): len(y_true) + len(labels)
+            ]["relative_path"].tolist()
+
+            batch_true_labels = test_dataset.data.iloc[
+                len(y_true): len(y_true) + len(labels)
+            ]["species_label"].tolist()
+
+            idx_to_class = {v: k for k, v in test_dataset.class_to_idx.items()}
+
+            for path, true_label_name, true_idx, pred_idx in zip(
+                    batch_paths,
+                    batch_true_labels,
+                    labels.cpu().numpy(),
+                    preds.cpu().numpy()
+            ):
+                pred_label_name = idx_to_class[int(pred_idx)]
+
+                prediction_records.append({
+                    "relative_path": path,
+                    "true_label": true_label_name,
+                    "pred_label": pred_label_name,
+                    "true_idx": int(true_idx),
+                    "pred_idx": int(pred_idx),
+                    "correct": int(true_idx) == int(pred_idx),
+                })
 
             y_true.extend(labels.cpu().numpy())
             y_pred.extend(preds.cpu().numpy())
@@ -85,6 +114,12 @@ def main():
         FIGURES_DIR / "confusion_matrix_multiclass_tuned_test.png",
         title="Confusion Matrix - Multiclass Tuned Model",
         figsize=(12, 10)
+    )
+
+    pd.DataFrame(prediction_records).to_csv(
+        METRICS_DIR / "test_predictions_multiclass_tuned.csv",
+        index=False,
+        encoding="utf-8"
     )
 
     print("\nPodsumowanie modelu wieloklasowego")

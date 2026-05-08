@@ -58,6 +58,8 @@ def main():
     y_pred = []
     y_score = []
 
+    prediction_records = []
+
     with torch.no_grad():
         for images, labels in tqdm(test_loader, desc="Test binary"):
             images = images.to(DEVICE, non_blocking=True)
@@ -68,6 +70,31 @@ def main():
 
             preds = torch.argmax(probs, dim=1)
             positive_scores = probs[:, 1]
+
+            batch_paths = test_dataset.df.iloc[
+                len(y_true): len(y_true) + len(labels)
+            ]["relative_path"].tolist()
+
+            idx_to_label = {
+                0: "edible",
+                1: "poisonous"
+            }
+
+            for path, true_idx, pred_idx, score in zip(
+                    batch_paths,
+                    labels.cpu().numpy(),
+                    preds.cpu().numpy(),
+                    positive_scores.cpu().numpy()
+            ):
+                prediction_records.append({
+                    "relative_path": path,
+                    "true_label": idx_to_label[int(true_idx)],
+                    "pred_label": idx_to_label[int(pred_idx)],
+                    "true_idx": int(true_idx),
+                    "pred_idx": int(pred_idx),
+                    "score_poisonous": float(score),
+                    "correct": int(true_idx) == int(pred_idx),
+                })
 
             y_true.extend(labels.cpu().numpy())
             y_pred.extend(preds.cpu().numpy())
@@ -108,6 +135,12 @@ def main():
         metrics["roc_tpr"],
         metrics["roc_auc"],
         FIGURES_DIR / "roc_curve_binary_test.png"
+    )
+
+    pd.DataFrame(prediction_records).to_csv(
+        METRICS_DIR / "test_predictions_binary.csv",
+        index=False,
+        encoding="utf-8"
     )
 
     print("\nPodsumowanie modelu binarnego")

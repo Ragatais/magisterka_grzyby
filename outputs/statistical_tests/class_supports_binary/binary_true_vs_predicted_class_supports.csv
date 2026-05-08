@@ -1,0 +1,5 @@
+distribution,class,support,percentage
+true,edible,2100,59.79498861047836
+predicted,edible,2106,59.96583143507973
+true,poisonous,1412,40.20501138952164
+predicted,poisonous,1406,40.03416856492027
