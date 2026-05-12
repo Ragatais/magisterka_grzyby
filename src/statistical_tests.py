@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from scipy.stats import binomtest, chi2
+from scipy.stats import binomtest, chi2, wilcoxon
 
 from config import METRICS_DIR, STATISTICAL_TESTS_DIR
 
@@ -129,21 +129,130 @@ def compare_binary_vs_hybrid_compromise():
     return result
 
 
+def compute_binary_true_class_confidence(row):
+    # dla klas pois confidence to score_poisonous, a dla klas edible 1 - score_poisonous
+
+    if row["true_label"] == "poisonous":
+        return float(row["score_poisonous"])
+    elif row["true_label"] == "edible":
+        return float(1.0 - row["score_poisonous"])
+    else:
+        raise ValueError(f"Nieznana etykieta: {row['true_label']}")
+
+
+def compute_hybrid_decision_confidence(row):
+    # dla hybrydy confidence zalezne od klaasyfikatora ktory podjal decyzje species_conf/binary_conf
+
+    if row["decision_source"] == "species_model":
+        return float(row["species_confidence"])
+    elif row["decision_source"] == "binary_model":
+        return float(row["binary_confidence"])
+    else:
+        return np.nan
+
+
+def wilcoxon_binary_vs_hybrid_confidence():
+    binary_path = METRICS_DIR / "test_predictions_binary.csv"
+    hybrid_path = METRICS_DIR / "hybrid_test_predictions_best_compromise.csv"
+
+    binary = pd.read_csv(binary_path)
+    hybrid = pd.read_csv(hybrid_path)
+
+    binary["binary_true_class_confidence"] = binary.apply(
+        compute_binary_true_class_confidence,
+        axis=1
+    )
+
+    hybrid = hybrid[hybrid["rejected"] == False].copy()
+
+    hybrid["hybrid_decision_confidence"] = hybrid.apply(
+        compute_hybrid_decision_confidence,
+        axis=1
+    )
+
+    binary_subset = binary[
+        ["relative_path", "true_label", "binary_true_class_confidence"]
+    ].rename(columns={"true_label": "true_label_binary"})
+
+    hybrid_subset = hybrid[
+        ["relative_path", "true_label", "hybrid_decision_confidence"]
+    ].rename(columns={"true_label": "true_label_hybrid"})
+
+    merged = binary_subset.merge(hybrid_subset, on="relative_path", how="inner")
+
+    merged = merged.dropna(subset=[
+        "binary_true_class_confidence",
+        "hybrid_decision_confidence"
+    ]).reset_index(drop=True)
+
+    binary_values = merged["binary_true_class_confidence"].to_numpy()
+    hybrid_values = merged["hybrid_decision_confidence"].to_numpy()
+
+    differences = hybrid_values - binary_values
+
+    # Wilcoxon wymaga niezerowych różnic
+    non_zero_differences = differences[differences != 0]
+
+    if len(non_zero_differences) == 0:
+        statistic = 0.0
+        p_value = 1.0
+    else:
+        statistic, p_value = wilcoxon(
+            hybrid_values,
+            binary_values,
+            alternative="two-sided",
+            zero_method="wilcox"
+        )
+
+    result = {
+        "comparison": "binary_vs_hybrid_compromise_confidence",
+        "model_a": "binary",
+        "model_b": "hybrid_compromise",
+        "n_samples": len(merged),
+        "binary_confidence_mean": float(np.mean(binary_values)),
+        "binary_confidence_median": float(np.median(binary_values)),
+        "binary_confidence_std": float(np.std(binary_values, ddof=1)),
+        "hybrid_confidence_mean": float(np.mean(hybrid_values)),
+        "hybrid_confidence_median": float(np.median(hybrid_values)),
+        "hybrid_confidence_std": float(np.std(hybrid_values, ddof=1)),
+        "mean_difference_hybrid_minus_binary": float(np.mean(differences)),
+        "median_difference_hybrid_minus_binary": float(np.median(differences)),
+        "wilcoxon_statistic": float(statistic),
+        "wilcoxon_p_value": float(p_value),
+    }
+
+    merged.to_csv(
+        STATISTICAL_TESTS_DIR / "wilcoxon_confidence_pairs_binary_vs_hybrid.csv",
+        index=False,
+        encoding="utf-8"
+    )
+
+    return result
+
+
 def main():
     STATISTICAL_TESTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    results = []
+    mcnemar_results = []
+    mcnemar_results.append(compare_multiclass_baseline_vs_tuned())
+    mcnemar_results.append(compare_binary_vs_hybrid_compromise())
 
-    results.append(compare_multiclass_baseline_vs_tuned())
-    results.append(compare_binary_vs_hybrid_compromise())
+    mcnemar_df = pd.DataFrame(mcnemar_results)
 
-    results_df = pd.DataFrame(results)
+    mcnemar_output_path = STATISTICAL_TESTS_DIR / "statistical_tests_mcnemar.csv"
+    mcnemar_df.to_csv(mcnemar_output_path, index=False, encoding="utf-8")
 
-    output_path = STATISTICAL_TESTS_DIR / "statistical_tests_mcnemar.csv"
-    results_df.to_csv(output_path, index=False, encoding="utf-8")
+    wilcoxon_result = wilcoxon_binary_vs_hybrid_confidence()
+    wilcoxon_df = pd.DataFrame([wilcoxon_result])
 
-    print("\nMcNemar test results")
-    print(results_df)
+    wilcoxon_output_path = STATISTICAL_TESTS_DIR / "statistical_tests_wilcoxon_confidence.csv"
+    wilcoxon_df.to_csv(wilcoxon_output_path, index=False, encoding="utf-8")
+
+    print("\nMcNemar test results:")
+    print(mcnemar_df)
+
+    print("\nWilcoxon test results:")
+    print(wilcoxon_df)
 
 
 

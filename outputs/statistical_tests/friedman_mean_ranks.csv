@@ -1,0 +1,4 @@
+method,method_label,mean_rank
+binary_correct,Binary,2.1002277904328017
+species_derived_correct,Species-derived,1.960136674259681
+hybrid_compromise_correct,Hybrid compromise,1.939635535307517

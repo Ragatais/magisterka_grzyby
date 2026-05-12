@@ -1,0 +1,2 @@
+test,n_samples,n_methods,methods,statistic,p_value,alpha,reject_H0,interpretation
+Friedman,3512,3,"binary_correct, species_derived_correct, hybrid_compromise_correct",226.3639639639586,7.009544131225564e-50,0.05,True,Reject H0: not all mean ranks are equal; post-hoc analysis is justified.

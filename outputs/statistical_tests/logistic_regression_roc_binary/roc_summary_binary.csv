@@ -1,0 +1,2 @@
+positive_class,negative_class,score_column,n_samples,auc
+poisonous,edible,score_poisonous,3512,0.7624514366653177

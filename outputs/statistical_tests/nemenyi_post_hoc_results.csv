@@ -1,0 +1,4 @@
+method_1,method_2,method_1_label,method_2_label,mean_rank_1,mean_rank_2,rank_difference,q_statistic,p_value,alpha,significant
+binary_correct,species_derived_correct,Binary,Species-derived,2.1002277904328017,1.960136674259681,0.14009111617312064,5.870469706811173,9.807761372526702e-05,0.05,True
+binary_correct,hybrid_compromise_correct,Binary,Hybrid compromise,2.1002277904328017,1.939635535307517,0.16059225512528474,6.7295628346372025,5.824588587777235e-06,0.05,True
+species_derived_correct,hybrid_compromise_correct,Species-derived,Hybrid compromise,1.960136674259681,1.939635535307517,0.0205011389521641,0.8590931278260296,0.8160385134527658,0.05,False
