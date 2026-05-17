@@ -1,3 +1,9 @@
+'''
+Informacja o wykorzystaniu AI:
+Ten plik został opracowany przy wsparciu asystenta
+ChatGPT (OpenAI, modele GPT-5 oraz GPT-5.5).
+'''
+
 from pathlib import Path
 
 import pandas as pd
